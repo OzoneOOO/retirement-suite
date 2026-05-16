@@ -1,0 +1,184 @@
+[CITY NAME] Confirmed Constants
+Last verified: [DATE] — [LIST YOUR SOURCES]
+
+Fill in every [FILL IN] field from primary sources before running any property audits.
+Do not estimate rates — every rate in this file feeds directly into the financial engine.
+
+================================================================================
+TRANSFER TAX
+================================================================================
+Buyer's statutory share: [FILL IN] % of purchase price
+(Source: [state/city revenue department URL])
+Note: Many jurisdictions split transfer tax between buyer and seller. Confirm the
+buyer-only share. Some states charge only a state-level tax; some cities add a
+municipal layer. Document both components if applicable.
+
+Buyer's share breakdown (if split):
+  State portion: [FILL IN] %
+  City/County portion: [FILL IN] %
+  Total buyer share: [FILL IN] %
+
+Co-op purchase rule (if applicable): [Does the jurisdiction apply transfer tax to
+co-op share purchases? If so, is it the same rate as conventional real estate?
+Note the relevant statute or ordinance. Enter N/A if co-ops are not present in
+your target market.]
+
+================================================================================
+STATE INCOME TAX ([STATE NAME])
+================================================================================
+Rate structure: [Flat rate of X% / Graduated brackets — list them]
+Flat rate (if applicable): [FILL IN] %
+
+Pension / defined benefit income: [FILL IN — Taxable at full rate / Partially
+exempt (specify threshold) / Fully exempt. Cite the specific state statute.]
+
+IRA / 401k / TSP withdrawals after age 59½: [FILL IN — Taxable / Exempt. Cite.]
+
+Social Security income: [FILL IN — Taxable / Partially taxable / Exempt. Cite.]
+
+Long-term capital gains: [FILL IN — Taxed at ordinary income rate / Preferential
+rate of X% / Exempt. Note if the state conforms to federal preferential LTCG rates
+or taxes all income at the same rate.]
+
+T2 LTCG (60% taxable portion): [FILL IN] % effective rate
+
+================================================================================
+LOCAL INCOME / WAGE / EARNINGS TAX
+================================================================================
+[City] [Tax name — Wage Tax / Earnings Tax / Income Tax]: [FILL IN] % (resident rate)
+Effective date of current rate: [FILL IN]
+
+Applies to: [FILL IN — Earned income / Wages only / Net profits / All income
+sources. Be specific about what is and is not covered.]
+
+T1 pension distributions: [FILL IN — EXEMPT / TAXABLE]
+T2 LTCG distributions: [FILL IN — EXEMPT / TAXABLE]
+IRA / 401k withdrawals: [FILL IN — EXEMPT / TAXABLE]
+
+Note: [Any additional local income taxes — county, school district, special district?]
+
+================================================================================
+PROPERTY TAX
+================================================================================
+Rate: [FILL IN] % (breakdown if applicable: [City] [X]% + [County/School] [Y]%)
+Rate source and effective date: [FILL IN]
+
+Applied to: [FILL IN — Purchase price / Assessed value / Appraised value. Confirm
+whether assessed value equals purchase price or is a fraction of it. This varies
+significantly by jurisdiction.]
+
+Assessment ratio (if applicable): [FILL IN — e.g., "assessed at 100% of market
+value" vs. "assessed at 60% of appraised value"]
+
+Homestead Exemption: [FILL IN — Dollar reduction to assessed value / Percentage
+reduction / Tax credit / Not available. Specify the amount and how to apply.
+Note whether it applies in the first year of ownership or requires a separate
+application that takes effect in a future tax year.]
+
+Reassessment Cycle: [FILL IN — How often does the jurisdiction reassess? On what
+trigger? What is the political and fiscal risk of reassessment for high-value
+properties? Has the jurisdiction recently completed or announced a reassessment?]
+
+================================================================================
+COST OF LIVING
+================================================================================
+Numbeo Cost of Living Index (vs. US national average, where 100 = US average):
+[FILL IN]
+Source: numbeo.com — confirm city match. Use the "Cost of Living" index, not the
+"Cost of Living Plus Rent" index. Capture the date of the data point.
+
+If Numbeo data is absent or the city is not listed: use BMEB directly and note
+"Numbeo data absent — CAME = BMEB."
+
+================================================================================
+SALES TAX
+================================================================================
+[State] %: [FILL IN]
+[City/County] %: [FILL IN]
+Combined total: [FILL IN] %
+
+Notes: [Are groceries taxed? Prescription drugs? These affect CAME calculation
+if the user's spending profile includes those categories. Standard assumption:
+apply full combined rate to CAME unless food is specifically exempt.]
+
+================================================================================
+CO-OP PURCHASE RULES (if applicable)
+================================================================================
+[If co-ops are present in your target market, address:]
+- Transfer tax treatment (same as conventional purchase or different?)
+- Homestead exemption eligibility (owner-occupant of co-op unit vs. deed holder)
+- Property tax embedding (some co-ops include property taxes in the monthly
+  maintenance fee — if so, set property tax line to $0 in fiscal drag and note)
+- Board approval requirements and impact on liquidity / resale
+
+[Enter N/A if co-ops are not present in your target market.]
+
+================================================================================
+HOUSING MARKET & APPRECIATION RATES
+================================================================================
+Last verified: [DATE]
+Sources: [LIST YOUR SOURCES — Zillow Research, local MLS data, RentCafe,
+local REALTOR association reports, HUD CHAS data]
+
+Note: Appreciation rates for specific property types vary by submarket and
+building vintage. Refresh these rates quarterly for active audits.
+
+Property-Type Appreciation Rates (annualized, historical):
+- Single-family homes: [FILL IN] % annually
+- Townhouses (fee-simple): [FILL IN] % annually
+- Condos (standard market-rate): [FILL IN] % annually
+- Condos (luxury high-rise): [FILL IN] % annually (note: luxury condos often
+  underperform standard condos — verify separately if relevant)
+- Co-ops (if applicable): [FILL IN] % annually
+
+Market Snapshot ([DATE]):
+- Median condo price: $[FILL IN]
+- Median single-family price: $[FILL IN]
+- Median townhouse price: $[FILL IN]
+- Active inventory trend (up/down % YoY): [FILL IN]
+- Days on market: [FILL IN]
+- Average monthly rent (2BR or 3BR, city center): $[FILL IN]
+
+================================================================================
+MUNICIPAL FISCAL HEALTH
+================================================================================
+Last verified: [DATE]
+Sources: [State oversight body, city budget documents, pension fund annual
+reports, bond rating agency filings]
+
+Pension Funding:
+- Funded ratio (actuarial): [FILL IN] % as of [DATE]
+- Trajectory: [FILL IN — improving / stable / deteriorating]
+- Annual contribution: $[FILL IN] (is this adequate to reach full funding?)
+
+General Fund Reserves:
+- Current level: [FILL IN] % of general fund revenue
+- GFOA benchmark: 16.7% (two months of expenditures)
+- Assessment: [FILL IN — adequate / thin / at risk]
+
+State Oversight:
+- Is this city under state fiscal oversight? [FILL IN — Yes / No / Formerly yes]
+- If yes: oversight body name, triggering conditions, expected end date
+
+Federal Funding Exposure:
+- Is the city heavily dependent on federal grants or ARPA-style stimulus?
+- Any announced or expected federal funding reductions?
+
+Tax Rate Stability (3–5 year outlook):
+- Transfer tax: [FILL IN — stable / recent increase / increase likely]
+- Property tax rate: [FILL IN — stable / reassessment risk vector]
+- Local income/wage tax: [FILL IN — stable / politically constrained]
+
+================================================================================
+REASSESSMENT RISK
+================================================================================
+[Describe the city's reassessment cycle, recent history, and political risk for
+high-value properties. Key questions:]
+
+- How often does the jurisdiction reassess (every year, every 3 years, irregular)?
+- What methodology — mass appraisal at market value, or something else?
+- What is the appeal process and how effective is it?
+- Is there a political environment that would target luxury or high-value properties
+  for aggressive reassessment during fiscal stress?
+- Are current OPA/assessed values above or below estimated market values?
+  (Above = downside reassessment risk for owners; below = upside risk)

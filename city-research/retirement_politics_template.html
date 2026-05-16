@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement City Political Research</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --ink-light: #3d3d5c;
+    --ink-faint: #6b6b8a;
+    --paper: #f7f4ef;
+    --paper-warm: #ede8e0;
+    --paper-dark: #e2dbd0;
+    --accent: #8b2635;
+    --accent-light: #b5404e;
+    --accent-muted: #d4a0a6;
+    --rule: #c8c0b4;
+    --gold: #b8962e;
+    --gold-light: #d4b866;
+    --section-bg: #faf8f5;
+    --tab-active: #1a1a2e;
+    --tab-hover: #2d2d4a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 48px 40px 36px;
+    border-bottom: 4px solid var(--gold);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .masthead-label {
+    font-family: 'Source Serif 4', serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 12px;
+  }
+
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--paper);
+    max-width: 720px;
+    margin-bottom: 16px;
+  }
+
+  .masthead-sub {
+    font-size: 14px;
+    color: rgba(247,244,239,0.65);
+    font-style: italic;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  /* ── DIMENSIONS STRIP ── */
+  .dimensions-strip {
+    background: var(--paper-warm);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    align-items: center;
+  }
+
+  .dimensions-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+
+  .dimension-pill {
+    font-size: 11px;
+    color: var(--ink-light);
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    font-family: 'Source Serif 4', serif;
+  }
+
+  /* ── CITY TABS ── */
+  .tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    background: var(--paper-warm);
+    border-bottom: 2px solid var(--rule);
+    padding: 0 2rem;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .tab-bar::-webkit-scrollbar { display: none; }
+
+  .tab {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.2rem;
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    margin-bottom: -2px;
+  }
+
+  .tab:hover {
+    color: var(--ink);
+    background: rgba(0,0,0,0.04);
+  }
+
+  .tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+    background: var(--paper);
+    font-weight: 600;
+  }
+
+  .tab.stub {
+    color: var(--ink-faint);
+    cursor: default;
+    font-style: italic;
+    opacity: 0.5;
+  }
+
+  /* ── SUMMARY TABLE ── */
+  .summary-panel {
+    padding: 40px 40px 40px 0;
+    max-width: none;
+    margin: 0;
+  }
+
+  .summary-panel h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .summary-desc {
+    font-size: 14px;
+    color: var(--ink-faint);
+    margin-bottom: 28px;
+    font-style: italic;
+    border-left: 3px solid var(--gold);
+    padding-left: 14px;
+  }
+
+  .summary-table-wrap {
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+  }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    min-width: 900px;
+  }
+
+  .summary-table th {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 11px 14px;
+    text-align: left;
+    white-space: nowrap;
+    border-right: 1px solid rgba(247,244,239,0.1);
+    border-bottom: 1px solid rgba(247,244,239,0.1);
+    position: sticky;
+    top: 46px;
+    z-index: 2;
+  }
+
+  .summary-table th:first-child {
+    position: sticky;
+    top: 46px;
+    left: 0;
+    z-index: 3;
+  }
+
+  .summary-table th.city-col {
+    color: var(--gold-light);
+    text-align: center;
+    min-width: 90px;
+  }
+
+  .summary-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    border-right: 1px solid var(--paper-dark);
+    vertical-align: top;
+    line-height: 1.45;
+    color: var(--ink-light);
+    font-size: 12.5px;
+  }
+
+  .summary-table td.dim-label {
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    background: var(--paper-warm);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    border-right: 1px solid var(--rule);
+  }
+
+  .summary-table td.city-cell {
+    text-align: center;
+    color: var(--ink);
+  }
+
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table tr:nth-child(even) td { background: var(--section-bg); }
+  .summary-table tr:nth-child(even) td.dim-label { background: var(--paper-dark) !important; }
+
+  .stub-cell {
+    color: var(--ink-faint);
+    font-style: italic;
+    font-size: 11px;
+  }
+
+  /* ── CITY PANEL ── */
+  .city-panel {
+    display: none;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 40px 60px;
+  }
+
+  .city-panel.active { display: block; }
+
+  .city-header {
+    border-bottom: 2px solid var(--rule);
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+  }
+
+  .city-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .city-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+
+  .city-subtitle {
+    font-size: 15px;
+    font-style: italic;
+    color: var(--ink-faint);
+    line-height: 1.5;
+    max-width: 580px;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-bottom: 4px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    cursor: pointer;
+    background: var(--paper-warm);
+    border-bottom: 1px solid transparent;
+    transition: background 0.12s;
+    user-select: none;
+  }
+
+  .section-header:hover { background: var(--paper-dark); }
+  .section.open .section-header { border-bottom-color: var(--rule); }
+
+  .section-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--gold);
+    min-width: 24px;
+    line-height: 1;
+  }
+
+  .section-title {
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    flex: 1;
+  }
+
+  .section-toggle {
+    font-size: 18px;
+    color: var(--ink-faint);
+    transition: transform 0.2s;
+    line-height: 1;
+  }
+
+  .section.open .section-toggle { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 24px 24px 24px 58px;
+    background: var(--section-bg);
+  }
+
+  .section.open .section-body { display: block; }
+
+  .section-body p {
+    margin-bottom: 14px;
+    color: var(--ink-light);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .section-body p:last-child { margin-bottom: 0; }
+
+  .section-body strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ── NOTABLE FACTOR ── */
+  .notable-box {
+    background: var(--ink);
+    color: var(--paper);
+    border-left: 4px solid var(--gold);
+    padding: 20px 24px;
+    margin: 32px 0 8px;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .notable-box .notable-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+  }
+
+  .notable-box p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: rgba(247,244,239,0.85);
+  }
+
+  /* ── UTILITY ── */
+  .rule { height: 1px; background: var(--rule); margin: 28px 0; }
+
+  @media (max-width: 600px) {
+    .masthead { padding: 32px 20px 24px; }
+    .tab-bar { padding: 0 12px; position: static; }
+    .summary-panel, .city-panel { padding: 24px 16px 40px; }
+    .section-body { padding: 20px 16px 20px 16px; }
+    .dimensions-strip { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-label">Retirement Research Series</div>
+  <h1>Retirement City Political Research</h1>
+  <div class="masthead-sub">Governance, fiscal structure, public safety, housing policy, economic trajectory, transit, social environment, and political stability — city by city</div>
+</div>
+
+<!-- DIMENSIONS STRIP -->
+<div class="dimensions-strip">
+  <span class="dimensions-label">Dimensions covered</span>
+  <span class="dimension-pill">Governance &amp; Electoral Structure</span>
+  <span class="dimension-pill">Fiscal Health &amp; Tax Structure</span>
+  <span class="dimension-pill">Public Safety &amp; Disorder Philosophy</span>
+  <span class="dimension-pill">Housing &amp; Development Policy</span>
+  <span class="dimension-pill">Economic Trajectory</span>
+  <span class="dimension-pill">Transit &amp; Infrastructure Investment</span>
+  <span class="dimension-pill">Social Environment</span>
+  <span class="dimension-pill">Political Stability &amp; Trajectory</span>
+</div>
+
+<!-- TAB BAR
+     Add one <button> per city tab. Match the id attribute of the city's <div id="tab-cityid">.
+     Run compliance_scanner.py after adding any city content. Fix all violations before committing. -->
+<div class="tab-bar">
+  <button class="tab active" onclick="showTab('summary')">Summary</button>
+  <!-- ADD CITY TABS HERE:
+  <button class="tab" onclick="showTab('cityname')">City Name</button>
+  -->
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SUMMARY TAB                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="tab-summary" class="summary-panel" style="display:block;">
+  <h2>City Comparison Summary</h2>
+  <div class="summary-desc">All target cities compared across standardized dimensions. Brief by design — see individual city tabs for full analysis. Cities are added as research is completed.</div>
+
+  <!-- Summary table: add one <th class="city-col"> and one <td> per row for each city. -->
+  <div class="summary-table-wrap">
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th style="min-width:200px;">Dimension</th>
+          <!-- ADD: <th class="city-col">[City Name]</th> for each city tab -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dim-label">Governance &amp; Electoral Structure</td>
+          <!-- ADD: <td class="city-cell">[brief summary]</td> -->
+        </tr>
+        <tr>
+          <td class="dim-label">Fiscal Health &amp; Tax Structure</td>
+        </tr>
+        <tr>
+          <td class="dim-label">Public Safety &amp; Disorder Philosophy</td>
+        </tr>
+        <tr>
+          <td class="dim-label">Housing &amp; Development Policy</td>
+        </tr>
+        <tr>
+          <td class="dim-label">Economic Trajectory</td>
+        </tr>
+        <tr>
+          <td class="dim-label">Transit &amp; Infrastructure</td>
+        </tr>
+        <tr>
+          <td class="dim-label">Social Environment</td>
+        </tr>
+        <tr>
+          <td class="dim-label">Political Stability &amp; Trajectory</td>
+        </tr>
+        <tr class="timestamp-row">
+          <td class="dim-label">Last Updated</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- CITY PANEL TEMPLATE — Copy this block for each new city you add.  -->
+<!--                                                                   -->
+<!-- Steps to add a city:                                              -->
+<!-- 1. Copy the entire block below (from the opening comment to the   -->
+<!--    closing </div> comment)                                         -->
+<!-- 2. Replace ALL [City Name], [State/Country], and 'cityname' tokens-->
+<!-- 3. Add the tab button to the tab-bar above                        -->
+<!-- 4. Add the city column to the summary table                       -->
+<!-- 5. Write the 8 sections and the Notable Factor                    -->
+<!-- 6. Run compliance_scanner.py — fix ALL violations before delivery -->
+<!--                                                                   -->
+<!-- ISOLATION RULE: This panel may NOT reference any other target     -->
+<!-- city by name in ANY section. External references only:            -->
+<!--   • U.S. or global averages, legal thresholds, benchmarks         -->
+<!--   • Named politicians, laws, programs, institutions               -->
+<!-- Unlike the weather file, there is NO exempted section here —      -->
+<!-- the Isolation Rule applies to all 8 sections and the Notable box. -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="tab-cityname" class="city-panel">
+  <div class="city-header">
+    <div class="city-tag">[City Name], [State/Country]</div>
+    <h2 class="city-title">[City Name]</h2>
+    <div class="city-subtitle">[One sentence capturing the city's fundamental political tension or distinction — the thing that holds the entire analysis together]</div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-num">1</span>
+      <span class="section-title">Governance &amp; Electoral Structure</span>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Mayor-council vs. commission vs. strong manager structure. Electoral system (at-large, district, ranked-choice). Factional balance of current council. ISOLATION RULE: no other target city names.]</p>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-num">2</span>
+      <span class="section-title">Fiscal Health &amp; Tax Structure</span>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Budget size and recent gap/surplus. Pension funding ratio and trajectory. State and local income tax on pension and investment income — apply to a retiree importing income. Property tax rate and stability. Sales tax. State income tax vs. neighboring states (for context, not target city comparison).]</p>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-num">3</span>
+      <span class="section-title">Public Safety &amp; Disorder Philosophy</span>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Crime trends (homicide rate, property crime, trend direction). Governing philosophy on homelessness, drug enforcement, policing. What this means specifically for a retiree's daily quality of life in the target neighborhoods.]</p>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-num">4</span>
+      <span class="section-title">Housing &amp; Development Policy</span>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Zoning reform (upzoning, ADU legalization, inclusionary requirements). Permitting pace vs. demand. Rent stabilization or tenant protection laws. Condo vs. co-op regulatory environment. How policy affects property values and the buyer/seller pool for resale.]</p>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-num">5</span>
+      <span class="section-title">Economic Trajectory</span>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Job growth/loss trend. Major employer anchors. Office vacancy if relevant. Population trajectory (growth, stability, or decline). What this means for a retiree — not employment, but property values, city services, and neighborhood vitality.]</p>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-num">6</span>
+      <span class="section-title">Transit &amp; Infrastructure Investment</span>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Current transit system quality for car-free retirement. Planned capital investment in transit, roads, or amenities. Infrastructure age and deferred maintenance risk. Specific projects relevant to target neighborhoods.]</p>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-num">7</span>
+      <span class="section-title">Social Environment</span>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p>[2–3 paragraphs. LGBTQ+ infrastructure and legal protection status. Cultural and demographic mix in target neighborhoods. Religious and political diversity. Community integration for newcomers and retirees. Apply any personal filters documented in the project CLAUDE.md here.]</p>
+    </div>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-num">8</span>
+      <span class="section-title">Political Stability &amp; Trajectory</span>
+      <span class="section-toggle">▾</span>
+    </div>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Risk of policy regime change (swing city vs. durable majority). Legal stability for property rights, contracts, and civil protections. State-level preemption risk (state overriding city policy). For international cities: visa stability, constitutional and rule-of-law trajectory, currency and property rights risk.]</p>
+    </div>
+  </div>
+
+  <!-- NOTABLE FACTOR: Synthesis paragraph — not a summary of sections above.
+       The one observation that captures the city's fundamental tension or distinction.
+       Written in the voice defined in TONE_GUIDE.md. -->
+  <div class="notable-box">
+    <div class="notable-label">Notable Factor</div>
+    <p>[One synthesis paragraph. Not a summary. The observation that holds everything together — what makes this city's political situation distinctive and what that means for a retiree with a 30-year horizon.]</p>
+  </div>
+
+</div>
+<!-- END CITY PANEL TEMPLATE -->
+
+<script>
+function showTab(name) {
+  // Hide all panels
+  document.querySelectorAll('.city-panel, .summary-panel').forEach(p => {
+    p.style.display = 'none';
+    p.classList.remove('active');
+  });
+
+  // Deactivate all tabs
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  // Show target panel
+  const panel = document.getElementById('tab-' + name);
+  if (panel) {
+    panel.style.display = 'block';
+    panel.classList.add('active');
+  }
+
+  // Activate tab button
+  if (event && event.target) {
+    event.target.classList.add('active');
+  }
+
+  window.scrollTo(0, 0);
+}
+
+function toggleSection(header) {
+  const section = header.closest('.section');
+  section.classList.toggle('open');
+}
+
+// Init: show Summary tab
+document.addEventListener('DOMContentLoaded', () => {
+  showTab('summary');
+});
+</script>
+</body>
+</html>

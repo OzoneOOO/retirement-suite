@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement City Weather Research</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --warm-gray: #8a8478;
+    --accent: #8b4513;
+    --accent-light: #c4722a;
+    --rule: #c8bfad;
+    --section-bg: #faf7f2;
+    --tab-active: #1a1a2e;
+    --tab-inactive: #e8e2d6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2.5rem 3rem 2rem;
+    border-bottom: 4px solid var(--accent);
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.3rem;
+  }
+
+  header p {
+    font-size: 0.9rem;
+    color: #a09a8e;
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* TAB NAV */
+  .tab-nav {
+    display: flex;
+    flex-wrap: wrap;
+    background: var(--cream);
+    border-bottom: 2px solid var(--rule);
+    padding: 0 2rem;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .tab-btn {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.2rem;
+    border: none;
+    background: transparent;
+    color: var(--warm-gray);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    margin-bottom: -2px;
+  }
+
+  .tab-btn:hover {
+    color: var(--ink);
+    background: rgba(0,0,0,0.04);
+  }
+
+  .tab-btn.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+    background: var(--paper);
+  }
+
+  /* TAB PANELS */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* CITY LAYOUT */
+  .city-wrapper {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  .city-header {
+    border-bottom: 2px solid var(--rule);
+    padding-bottom: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .city-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .city-header .tagline {
+    font-style: italic;
+    color: var(--warm-gray);
+    font-size: 1rem;
+    margin-top: 0.25rem;
+    font-weight: 300;
+  }
+
+  /* COLLAPSIBLE SECTIONS */
+  .section {
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+
+  .section-toggle {
+    width: 100%;
+    text-align: left;
+    background: var(--section-bg);
+    border: none;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    transition: background 0.15s ease;
+  }
+
+  .section-toggle:hover {
+    background: var(--cream);
+  }
+
+  .section-toggle.open {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .section-toggle .arrow {
+    font-size: 0.75rem;
+    transition: transform 0.2s ease;
+    color: var(--accent-light);
+  }
+
+  .section-toggle.open .arrow {
+    transform: rotate(180deg);
+    color: var(--paper);
+  }
+
+  .section-body {
+    display: none;
+    padding: 1.4rem 1.5rem;
+    background: white;
+    border-top: 1px solid var(--rule);
+    line-height: 1.8;
+    font-size: 0.95rem;
+    color: #2a2820;
+  }
+
+  .section-body.open {
+    display: block;
+  }
+
+  .section-body p {
+    margin-bottom: 1rem;
+  }
+
+  .section-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-body strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .section-body ul {
+    margin: 0.5rem 0 1rem 1.2rem;
+  }
+
+  .section-body li {
+    margin-bottom: 0.35rem;
+  }
+
+  /* SUMMARY TABLE */
+  .summary-wrapper {
+    max-width: none;
+    margin: 0;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  .summary-wrapper h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: var(--ink);
+  }
+
+  .summary-wrapper .summary-intro {
+    font-style: italic;
+    color: var(--warm-gray);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .summary-table th {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    padding: 0.7rem 0.8rem;
+    text-align: left;
+    background: var(--ink);
+    color: var(--paper);
+    border-right: 1px solid #333;
+    border-bottom: 1px solid #333;
+    white-space: nowrap;
+    position: sticky;
+    top: 46px;
+    z-index: 2;
+  }
+
+  .summary-table th:first-child {
+    width: 130px;
+    position: sticky;
+    top: 46px;
+    left: 0;
+    z-index: 3;
+  }
+
+  .summary-table td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+    vertical-align: top;
+    color: #2a2820;
+  }
+
+  .summary-table tr:nth-child(even) td {
+    background: #faf8f4;
+  }
+
+  .summary-table tr:nth-child(odd) td {
+    background: white;
+  }
+
+  .summary-table td:first-child {
+    font-weight: 600;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.78rem;
+    color: var(--ink);
+    background: var(--cream) !important;
+    white-space: nowrap;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+
+  .summary-table td.city-name {
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    background: var(--cream) !important;
+    color: var(--ink);
+  }
+
+  .note {
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--warm-gray);
+    font-style: italic;
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+  }
+
+  /* BASELINES NOTE */
+  .baselines-box {
+    background: var(--cream);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    font-size: 0.88rem;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .baselines-box strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+  }
+
+  @media (max-width: 700px) {
+    header { padding: 1.5rem 1rem; }
+    .tab-nav { position: static; }
+    .tab-btn { padding: 0.7rem 0.8rem; font-size: 0.72rem; }
+    .city-wrapper, .summary-wrapper { padding: 1.5rem 1rem 3rem; }
+    .summary-table { font-size: 0.72rem; }
+    .summary-table th, .summary-table td { padding: 0.45rem 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Retirement City Weather Research</h1>
+  <p>Climate, health risk, extreme weather, water, adaptation, and climate change trajectory — city by city</p>
+</header>
+
+<!-- TAB NAVIGATION
+     Add one <button> per city tab. Match the id attribute of the city's <div id="tab-cityid">.
+     Run compliance_scanner.py after adding any city content. Fix all violations before committing. -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('summary')">Summary</button>
+  <!-- ADD CITY TABS HERE:
+  <button class="tab-btn" onclick="showTab('cityname')">City Name</button>
+  -->
+</nav>
+
+<!-- ===================== SUMMARY TAB ===================== -->
+<div id="tab-summary" class="tab-panel active">
+<div class="summary-wrapper">
+  <h2>City Comparison Summary</h2>
+  <p class="summary-intro">All target cities compared across standardized dimensions. Descriptions are brief by design — see individual city tabs for full analysis.</p>
+
+  <!-- USER: Replace placeholder baseline city names with your own four baseline cities.
+       These are the only cities that may be referenced by name in Sections 1-9 of any city tab.
+       They serve as comparison anchors in Section 10 only. -->
+  <div class="baselines-box">
+    <strong>Baseline Cities (reference only, not profiled as tabs)</strong>
+    [Baseline City 1] · [Baseline City 2] · [Baseline City 3] · [Baseline City 4] — used as comparison anchors throughout individual city analyses (Section 10 only).
+  </div>
+
+  <!-- Summary table: add one <th> and one <td> per row for each city as you add it.
+       Rows correspond to the 10 standard weather dimensions. -->
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <!-- ADD: <th>[City Name]</th> for each city tab -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Climate Type</td><!-- ADD: <td>[city value]</td> --></tr>
+      <tr><td>Winter Severity</td></tr>
+      <tr><td>Summer Heat &amp; Humidity</td></tr>
+      <tr><td>Sunshine &amp; SAD Risk</td></tr>
+      <tr><td>Extreme Weather &amp; Hazards</td></tr>
+      <tr><td>Air Quality</td></tr>
+      <tr><td>Water Supply &amp; Drought Risk</td></tr>
+      <tr><td>How Residents Adapt</td></tr>
+      <tr><td>Climate Trajectory (2030–2050)</td></tr>
+      <tr><td>Baseline Comparisons</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note">Cities are added as research is completed. Each city tab contains the full analysis; this table is a brief cross-city reference.</p>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- CITY TAB TEMPLATE — Copy this block for each new city you add.    -->
+<!--                                                                   -->
+<!-- Steps to add a city:                                              -->
+<!-- 1. Copy the entire block below (from the comment to </div></div>) -->
+<!-- 2. Replace ALL instances of [City Name], [State/Country],         -->
+<!--    and 'cityname' with the actual values                          -->
+<!-- 3. Add the tab button to the nav above                            -->
+<!-- 4. Add the city column to the summary table                       -->
+<!-- 5. Write the 10 sections using the section structure below        -->
+<!-- 6. Run compliance_scanner.py — fix ALL violations before delivery -->
+<!--                                                                   -->
+<!-- ISOLATION RULE: Within Sections 1-9, this panel may NOT reference -->
+<!-- any other target city by name. External references only:          -->
+<!--   • U.S. or global averages and scientific thresholds             -->
+<!--   • The four designated baseline cities (Section 10 only)         -->
+<!-- Section 10 is the ONLY section where baseline cities may appear.  -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="tab-cityname" class="tab-panel">
+<div class="city-wrapper">
+  <div class="city-header">
+    <h2>[City Name], [State/Country]</h2>
+    <p class="tagline">[One sentence capturing the city's defining weather character — its most important tension, asset, or distinction for a retiree evaluating a 30-year commitment]</p>
+  </div>
+
+  <!-- SECTION 1: open by default (add class "open" to both toggle and body) -->
+  <div class="section">
+    <button class="section-toggle open" onclick="toggleSection(this)">1. Climate Overview &amp; Baseline <span class="arrow">▼</span></button>
+    <div class="section-body open">
+      <p>[2–3 paragraphs. Köppen classification, elevation, defining seasonal structure, annual precipitation pattern. ISOLATION RULE applies — no other target cities by name.]</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">2. Winter — Severity, Variability, and Cold Risk <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Average Jan high/low, snowfall, ice storm exposure, cardiovascular cold risk, polar vortex exposure. Quantify everything.]</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">3. Summer — Heat, Humidity, and Health <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Average Jul high, heat index / wet-bulb risk, days above threshold, heat health risk trajectory under climate change.]</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">4. Sunshine &amp; SAD Risk <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Annual sunshine hours, sunny days per year, SAD Days Index (see README.md for formula and threshold). UV intensity if relevant.]</p>
+      <p><strong>SAD Days Index: [X.XXX kWh/m²/day]</strong> — [Interpretation: below 0.979 = SAD-risk threshold. State the number of months below threshold and what that means for winter mood risk.]</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">5. Extreme Weather &amp; Natural Hazards <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Tornado, hurricane, flood, wildfire, earthquake, drought, ice storm exposure. Bold the primary recurring hazard. Apply findings to retiree specifically.]</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">6. Air Quality <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Annual AQI, unhealthy days per year (ozone and PM2.5), source of pollutants, wildfire smoke exposure trajectory. ALA State of the Air report is the primary source.]</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">7. Water — Supply, Drought, and Infrastructure <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Primary water sources, drought vulnerability, aquifer stress, long-horizon supply trajectory. Distinguish between short-term drought and structural aridification if relevant.]</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">8. How Residents Adapt <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs. Behavioral adaptations long-term residents develop. What newcomers consistently underestimate. What equipment or preparation is actually required vs. optional.]</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">9. Climate Trajectory (2030–2050) <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs. ClimateCheck or equivalent projections. Days above threshold in 2050 vs. today. Sea level risk if coastal. Wildfire season length trajectory. Apply to a retiree with a 30-year horizon.]</p>
+    </div>
+  </div>
+
+  <!-- SECTION 10: ONLY section where baseline cities may be referenced by name.
+       Do NOT reference other target cities here. Baseline cities only. -->
+  <div class="section">
+    <button class="section-toggle" onclick="toggleSection(this)">10. Comparisons to Baseline Cities <span class="arrow">▼</span></button>
+    <div class="section-body">
+      <p>[2–3 paragraphs comparing this city's weather profile to the four baseline cities on key dimensions — winter severity, sunshine, summer heat, extreme weather. Baseline cities may be named here. No other target cities.]</p>
+    </div>
+  </div>
+
+</div>
+</div>
+<!-- END CITY TAB TEMPLATE -->
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function toggleSection(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  btn.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+</script>
+</body>
+</html>
