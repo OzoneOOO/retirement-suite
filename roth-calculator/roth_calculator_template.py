@@ -6,6 +6,8 @@ TEMPLATE: All personal defaults in the Inputs dataclass and sidebar widgets are
 illustrative placeholder values. Replace them with your own data before running.
 See README.md for field explanations and NEW_USER_SETUP.md for the intake guide.
 """
+# v2.2 changes: removed taxable_floor policy param; added insolvency/foreclosure tracking;
+# fixed retirement-phase net_cash catch-up guard (and is_employed condition).
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, replace
@@ -253,7 +255,6 @@ class Policy:
     start_age: int = 46
     stop_age: int = 73
     irmaa_tier_cap: int = 2               # max IRMAA tier to allow (0 = no IRMAA, 5 = no cap)
-    taxable_floor: float = 0.0            # keep at least this much in taxable; switch spending to Trad when at floor (real $)
 
 
 def adjust_brackets(brackets: list[tuple[float, float]], factor: float) -> list[tuple[float, float]]:
@@ -301,6 +302,8 @@ def simulate(inp: Inputs, pol: Policy, death_age: Optional[int] = None) -> pd.Da
     home_value = 0.0
     purchase_pp_nominal = 0.0
     hoa_annual_t0_nominal = 0.0
+
+    went_insolvent = False
 
     for y in range(years):
         infl_factor = (1 + inflation) ** y
@@ -400,6 +403,9 @@ def simulate(inp: Inputs, pol: Policy, death_age: Optional[int] = None) -> pd.Da
             hoa_annual_t0_nominal = inp.hoa_monthly_t0 * 12 * infl_factor
             home_value = purchase_pp_nominal
             house_owned = True
+            total_liquid = taxable + roth_ira + roth_tsp + trad
+            if purchase_tiei > total_liquid:
+                went_insolvent = True
 
         # Recurring housing cost (nominal $ this year)
         housing_cost = 0.0
@@ -433,9 +439,8 @@ def simulate(inp: Inputs, pol: Policy, death_age: Optional[int] = None) -> pd.Da
         shortfall = max(0, spend_need - (cash_in))
         ltcg_realized = 0.0
 
-        # Withdraw from taxable for spending, but respect the policy floor (real $, inflated to nominal)
-        floor_nom = pol.taxable_floor * infl_factor
-        available_taxable = max(0, taxable - floor_nom)
+        # Withdraw from taxable for spending
+        available_taxable = max(0, taxable)
         from_taxable = min(shortfall, available_taxable)
         if from_taxable > 0 and taxable > 0:
             gain_frac = max(0, 1 - basis / taxable) if taxable > 0 else 0
@@ -464,6 +469,11 @@ def simulate(inp: Inputs, pol: Policy, death_age: Optional[int] = None) -> pd.Da
             roth_tsp -= take
             from_roth += take
             shortfall -= take
+
+        # Any spending the waterfall could not fund is unfunded — flag insolvency
+        unfunded = max(0.0, shortfall)
+        if unfunded > 1.0:
+            went_insolvent = True
 
         # 10% early withdrawal penalty on cash distributions before 59½.
         # Conversions (Trad→Roth rollovers) are NOT distributions — no penalty.
@@ -531,8 +541,9 @@ def simulate(inp: Inputs, pol: Policy, death_age: Optional[int] = None) -> pd.Da
         if net_cash > 0:
             taxable += net_cash
             basis += net_cash  # treat as new basis (cash added)
-        elif net_cash < 0:
+        elif net_cash < 0 and is_employed:
             # W-2 wasn't enough to cover spending + tax: draw shortfall from taxable.
+            # Retirement-phase shortfalls are already handled by the from_taxable/extra_trad/from_roth waterfall above.
             shortfall_cash = -net_cash
             draw = min(shortfall_cash, taxable)
             if draw > 0 and taxable > 0:
@@ -548,6 +559,13 @@ def simulate(inp: Inputs, pol: Policy, death_age: Optional[int] = None) -> pd.Da
             deficit -= pull
             if deficit > 0:
                 roth_tsp -= min(deficit, roth_tsp)
+
+        # Foreclosure: all accounts exhausted while mortgage is still outstanding
+        if house_owned and (trad + roth_ira + roth_tsp + taxable) <= 0 and mortgage_balance > 0:
+            house_owned = False
+            home_value = 0.0
+            mortgage_balance = 0.0
+            went_insolvent = True
 
         # Grow accounts (end-of-year)
         trad *= (1 + inp.return_trad)
@@ -623,6 +641,8 @@ def simulate(inp: Inputs, pol: Policy, death_age: Optional[int] = None) -> pd.Da
             "mortgage_balance": mortgage_balance,
             "total": total_nominal,
             "real_after_tax": real_after_tax,
+            "insolvent": went_insolvent,
+            "unfunded_spend": unfunded,
         })
 
     return pd.DataFrame(rows)
@@ -635,7 +655,6 @@ def simulate(inp: Inputs, pol: Policy, death_age: Optional[int] = None) -> pd.Da
 MARGINAL_GRID = [0.0, 0.12, 0.15, 0.22, 0.24, 0.25, 0.27, 0.32, 0.35]
 EMP_MARGINAL_GRID = [0.0, 0.10, 0.12, 0.22]  # employment-phase: tighter grid (W-2 anchors low brackets)
 IRMAA_GRID = [0, 2, 5]                        # base / mid / uncapped
-FLOOR_GRID = [0, 100_000, 250_000, 500_000, 1_000_000]
 
 
 def optimize(inp: Inputs, death_age: Optional[int]) -> tuple[Policy, float, pd.DataFrame]:
@@ -652,18 +671,16 @@ def optimize(inp: Inputs, death_age: Optional[int]) -> tuple[Policy, float, pd.D
                     for stop in stop_grid:
                         if stop < start:
                             continue
-                        for floor in FLOOR_GRID:
-                            pol = Policy(fill_to_marginal=marg,
-                                         fill_to_marginal_emp=marg_emp,
-                                         start_age=start, stop_age=stop,
-                                         irmaa_tier_cap=irmaa_cap,
-                                         taxable_floor=floor)
-                            df = simulate(inp, pol, death_age)
-                            score = df["real_after_tax"].iloc[-1]
-                            if score > best_score:
-                                best_score = score
-                                best_pol = pol
-                                best_df = df
+                        pol = Policy(fill_to_marginal=marg,
+                                     fill_to_marginal_emp=marg_emp,
+                                     start_age=start, stop_age=stop,
+                                     irmaa_tier_cap=irmaa_cap)
+                        df = simulate(inp, pol, death_age)
+                        score = df["real_after_tax"].iloc[-1]
+                        if score > best_score:
+                            best_score = score
+                            best_pol = pol
+                            best_df = df
     return best_pol, best_score, best_df
 
 
@@ -845,7 +862,8 @@ def render_detail(label, df, baseline_df, inp: Inputs):
                          var_name="account", value_name="balance")
     m_rules = milestone_rules(inp)
     if log_bal:
-        chart_data_log = chart_data[chart_data["balance"] > 0]
+        chart_data_log = chart_data.copy()
+        chart_data_log.loc[chart_data_log["balance"] <= 0, "balance"] = None
         bal_chart = alt.Chart(chart_data_log).mark_line().encode(
             x="age:Q",
             y=alt.Y("balance:Q", scale=alt.Scale(type="log")),
@@ -907,6 +925,13 @@ with tab_opt:
             with st.spinner("Optimizing..."):
                 pol, score, df = optimize(inp, death)
             baseline_df = simulate(inp, baseline_pol, death)
+            if df["insolvent"].any() or baseline_df["insolvent"].any():
+                total_unfunded = float(df.get("unfunded_spend", pd.Series([0.0])).sum())
+                msg = ("Simulation went insolvent: home purchase cost or spending exceeded available assets. "
+                       "Home equity zeroed at foreclosure. Results past that point are not meaningful.")
+                if total_unfunded > 0:
+                    msg += f" Unfunded spending: ${total_unfunded:,.0f} nominal (phantom — accounts ran out)."
+                st.warning(msg)
             baseline_score = baseline_df["real_after_tax"].iloc[-1]
             delta = score - baseline_score
             st.metric("Real after-tax wealth at horizon",
@@ -916,7 +941,6 @@ with tab_opt:
             st.write(f"- Fill to marginal (retirement): **{pol.fill_to_marginal:.0%}**")
             st.write(f"- Convert ages: **{pol.start_age}–{pol.stop_age}**")
             st.write(f"- IRMAA tier cap: **{pol.irmaa_tier_cap}**")
-            st.write(f"- Taxable floor: **${pol.taxable_floor:,.0f}**")
             results.append((label, pol, df, baseline_df))
 
     if results:
@@ -951,16 +975,22 @@ with tab_manual:
         m_start = st.number_input("Convert start age", age1, horizon, age1)
         m_stop = st.number_input("Convert stop age", age1, horizon, min(rmd_age - 1, horizon))
     with c3:
-        m_floor = st.number_input("Taxable floor ($)", 0, 10_000_000, 0, step=25_000)
         m_death = st.selectbox("Survivor scenario",
                                [None, 75, 80, 85, 90],
                                format_func=lambda x: "Both alive" if x is None else f"First death at {x}")
 
     m_pol = Policy(fill_to_marginal=m_fill, fill_to_marginal_emp=m_fill_emp,
                    start_age=m_start, stop_age=m_stop,
-                   irmaa_tier_cap=m_irmaa, taxable_floor=m_floor)
+                   irmaa_tier_cap=m_irmaa)
     m_df = simulate(inp, m_pol, m_death)
     m_baseline = simulate(inp, baseline_pol, m_death)
+    if m_df["insolvent"].any() or m_baseline["insolvent"].any():
+        total_unfunded = float(m_df.get("unfunded_spend", pd.Series([0.0])).sum())
+        msg = ("Simulation went insolvent: home purchase cost or spending exceeded available assets. "
+               "Home equity zeroed at foreclosure. Results past that point are not meaningful.")
+        if total_unfunded > 0:
+            msg += f" Unfunded spending: ${total_unfunded:,.0f} nominal (phantom — accounts ran out)."
+        st.warning(msg)
     m_score = m_df["real_after_tax"].iloc[-1]
     m_base_score = m_baseline["real_after_tax"].iloc[-1]
     st.metric("Real after-tax wealth at horizon",
